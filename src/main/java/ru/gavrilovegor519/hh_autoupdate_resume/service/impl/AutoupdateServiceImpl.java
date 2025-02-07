@@ -6,46 +6,42 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.gavrilovegor519.hh_autoupdate_resume.dto.TokenDto;
-import ru.gavrilovegor519.hh_autoupdate_resume.entity.Token;
-import ru.gavrilovegor519.hh_autoupdate_resume.mapper.TokenMapper;
-import ru.gavrilovegor519.hh_autoupdate_resume.repo.TokenRepo;
 import ru.gavrilovegor519.hh_autoupdate_resume.service.AutoupdateService;
 import ru.gavrilovegor519.hh_autoupdate_resume.utils.HhApiUtils;
 
-import java.util.Optional;
+import java.util.prefs.Preferences;
 
 @Service
 @EnableScheduling
 @ConditionalOnProperty(name = "scheduler.enabled", matchIfMissing = true)
 public class AutoupdateServiceImpl implements AutoupdateService {
 
-    private final TokenRepo tokenRepo;
     private final HhApiUtils hhApiUtils;
     private final String resumeId;
-    private final TokenMapper tokenMapper;
 
-    public AutoupdateServiceImpl(TokenRepo tokenRepo, HhApiUtils hhApiUtils, TokenMapper tokenMapper,
-                                 @Value("${ru.gavrilovegor519.hh-autoupdate-resume.resumeId}") String resumeId) {
-        this.tokenRepo = tokenRepo;
+    private final Preferences preferences = Preferences.userRoot().node("hh-autoupdate-resume");
+
+    public AutoupdateServiceImpl(HhApiUtils hhApiUtils, @Value("${ru.gavrilovegor519.hh-autoupdate-resume.resumeId}") String resumeId) {
         this.hhApiUtils = hhApiUtils;
-        this.tokenMapper = tokenMapper;
         this.resumeId = resumeId;
     }
 
     @Override
     @Scheduled(fixedRate = 14500)
     public void updateResume() {
-        Optional<Token> token = tokenRepo.findById(0L);
+        String accessToken = preferences.get("access_token", "");
+        String refreshToken = preferences.get("refresh_token", "");
 
-        if (token.isPresent()) {
+        if (!accessToken.isEmpty() || !refreshToken.isEmpty()) {
             try {
-                hhApiUtils.updateResume(resumeId, token.get().getAccess_token());
+                hhApiUtils.updateResume(resumeId, accessToken);
             } catch (Exception e) {
-                TokenDto tokenDto = hhApiUtils.getNewToken(token.get().getRefresh_token());
+                TokenDto tokenDto = hhApiUtils.getNewToken(refreshToken);
 
                 if (tokenDto != null && !tokenDto.getAccess_token().isEmpty() &&
                         !tokenDto.getRefresh_token().isEmpty()) {
-                    tokenRepo.save(tokenMapper.toEntity(tokenDto));
+                    preferences.put("access_token", tokenDto.getAccess_token());
+                    preferences.put("refresh_token", tokenDto.getRefresh_token());
                     hhApiUtils.updateResume(resumeId, tokenDto.getAccess_token());
                 }
             }
@@ -54,7 +50,8 @@ public class AutoupdateServiceImpl implements AutoupdateService {
 
             if (tokenDto != null && !tokenDto.getAccess_token().isEmpty() &&
                     !tokenDto.getRefresh_token().isEmpty()) {
-                tokenRepo.save(tokenMapper.toEntity(tokenDto));
+                preferences.put("access_token", tokenDto.getAccess_token());
+                preferences.put("refresh_token", tokenDto.getRefresh_token());
                 hhApiUtils.updateResume(resumeId, tokenDto.getAccess_token());
             }
         }
