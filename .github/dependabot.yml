@@ -1,0 +1,6 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle" # Use Maven profile
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
