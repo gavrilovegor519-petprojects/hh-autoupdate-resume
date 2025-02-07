@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: user # change to yours
+      POSTGRES_PASSWORD: qwerty # change to yours
+      PGDATA: /data/postgres
+      POSTGRES_DB: hh
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - hh
+
+networks:
+  hh:
+    driver: bridge
+
+volumes:
+  postgres:
