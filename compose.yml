@@ -1,21 +1,18 @@
 services:
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: user # change to yours
-      POSTGRES_PASSWORD: qwerty # change to yours
-      PGDATA: /data/postgres
-      POSTGRES_DB: hh
-    volumes:
-      - postgres:/data/postgres
-    ports:
-      - "5432:5432"
+  app:
+    image: 'gavrilovegor519/hh-autoupdate-resume'
+    build:
+      context: .
+    environment: # this is example of environment variables
+      - HH_AUTOUPDATE_RESUME_AUTHTOKEN=test_auth
+      - HH_AUTOUPDATE_RESUME_CLIENT_ID=test_client_id
+      - HH_AUTOUPDATE_RESUME_CLIENT_SECRET=test_client_secret
+      - HH_AUTOUPDATE_RESUME_RESUME_ID=1
+      - HH_AUTOUPDATE_RESUME_TG_BOTTOKEN=test_bot_token
+      - HH_AUTOUPDATE_RESUME_TG_CHATID=test_chat_id
     networks:
-      - hh
+      - hh-autoupdate-resume
 
 networks:
-  hh:
+  hh-autoupdate-resume:
     driver: bridge
-
-volumes:
-  postgres:
