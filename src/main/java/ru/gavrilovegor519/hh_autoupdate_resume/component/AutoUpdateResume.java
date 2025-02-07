@@ -15,11 +15,14 @@ public class AutoUpdateResume {
 
     private final HhApiUtils hhApiUtils;
     private final String resumeId;
+    private final SendTelegramNotification sendTelegramNotification;
 
     private final Preferences preferences = Preferences.userRoot().node("hh-autoupdate-resume");
 
-    public AutoUpdateResume(HhApiUtils hhApiUtils, @Value("${ru.gavrilovegor519.hh-autoupdate-resume.resumeId}") String resumeId) {
+    public AutoUpdateResume(HhApiUtils hhApiUtils, SendTelegramNotification sendTelegramNotification,
+                            @Value("${ru.gavrilovegor519.hh-autoupdate-resume.resumeId}") String resumeId) {
         this.hhApiUtils = hhApiUtils;
+        this.sendTelegramNotification = sendTelegramNotification;
         this.resumeId = resumeId;
     }
 
@@ -32,11 +35,22 @@ public class AutoUpdateResume {
             try {
                 hhApiUtils.updateResume(resumeId, accessToken);
             } catch (Exception e) {
-                updateTokens(hhApiUtils.getNewToken(refreshToken));
+                sendTelegramNotification.send("Ошибка обновления резюме: " + e.getMessage());
+                try {
+                    updateTokens(hhApiUtils.getNewToken(refreshToken));
+                } catch (Exception e1) {
+                    sendTelegramNotification.send("Ошибка обновления токенов: " + e1.getMessage());
+                }
             }
         } else {
-            updateTokens(hhApiUtils.getInitialToken());
+            try {
+                updateTokens(hhApiUtils.getInitialToken());
+            } catch (Exception e) {
+                sendTelegramNotification.send("Ошибка первичной авторизации: " + e.getMessage());
+            }
         }
+
+        sendTelegramNotification.send("Резюме обновлено");
     }
 
     private void updateTokens(TokenDto tokenDto) {
