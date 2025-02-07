@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 @Component
@@ -24,14 +25,13 @@ public class HhApiUtils {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final RestClient restClient = RestClient.builder()
-            .baseUrl("https://hh.ru")
+            .baseUrl("https://api.hh.ru")
             .defaultHeader("User-Agent", "hh-autoupdate-resume/1.0 (gavrilovegor519-2@yandex.ru)")
-            .defaultStatusHandler(HttpStatusCode::isError, (req, res) -> log.error(res.getStatusText()))
             .build();
 
     public TokenDto getInitialToken() {
         return restClient.post()
-                .uri("/oauth/token?grant_type=authorization_code&client_id={clientId}&client_secret={clientSecret}&code={authToken}",
+                .uri("/token?grant_type=authorization_code&client_id={clientId}&client_secret={clientSecret}&code={authToken}",
                         clientId, clientSecret, authToken)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange((request, response) -> {
@@ -39,21 +39,21 @@ public class HhApiUtils {
                         return objectMapper.readValue(response.getBody(), new TypeReference<>() {
                         });
                     } else {
-                        throw new UnsupportedOperationException(response.getStatusText());
+                        throw new HttpClientErrorException(response.getStatusCode(), new String(response.getBody().readAllBytes()));
                     }
                 });
     }
 
     public TokenDto getNewToken(String refreshToken) {
         return restClient.post()
-                .uri("/oauth/token?grant_type=refresh_token&refresh_token={refreshToken}", refreshToken)
+                .uri("/token?grant_type=refresh_token&refresh_token={refreshToken}", refreshToken)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange((request, response) -> {
                     if (response.getStatusCode().isSameCodeAs(HttpStatusCode.valueOf(200))) {
                         return objectMapper.readValue(response.getBody(), new TypeReference<>() {
                         });
                     } else {
-                        throw new UnsupportedOperationException(response.getStatusText());
+                        throw new HttpClientErrorException(response.getStatusCode(), new String(response.getBody().readAllBytes()));
                     }
                 });
     }
@@ -68,7 +68,7 @@ public class HhApiUtils {
                         return objectMapper.readValue(response.getBody(), new TypeReference<>() {
                         });
                     } else {
-                        throw new UnsupportedOperationException(response.getStatusText());
+                        throw new HttpClientErrorException(response.getStatusCode(), new String(response.getBody().readAllBytes()));
                     }
                 });
     }

@@ -23,33 +23,28 @@ public class AutoUpdateResume {
         this.resumeId = resumeId;
     }
 
-    @Scheduled(fixedRate = 14500)
+    @Scheduled(fixedRate = 14400)
     public void updateResume() {
-        String accessToken = preferences.get("access_token", "");
-        String refreshToken = preferences.get("refresh_token", "");
+        String accessToken = preferences.get("access_token", null);
+        String refreshToken = preferences.get("refresh_token", null);
 
-        if (!accessToken.isEmpty() || !refreshToken.isEmpty()) {
+        if (accessToken != null && refreshToken != null) {
             try {
                 hhApiUtils.updateResume(resumeId, accessToken);
             } catch (Exception e) {
-                TokenDto tokenDto = hhApiUtils.getNewToken(refreshToken);
-
-                if (tokenDto != null && !tokenDto.getAccess_token().isEmpty() &&
-                        !tokenDto.getRefresh_token().isEmpty()) {
-                    preferences.put("access_token", tokenDto.getAccess_token());
-                    preferences.put("refresh_token", tokenDto.getRefresh_token());
-                    hhApiUtils.updateResume(resumeId, tokenDto.getAccess_token());
-                }
+                updateTokens(hhApiUtils.getNewToken(refreshToken));
             }
         } else {
-            TokenDto tokenDto = hhApiUtils.getInitialToken();
+            updateTokens(hhApiUtils.getInitialToken());
+        }
+    }
 
-            if (tokenDto != null && !tokenDto.getAccess_token().isEmpty() &&
-                    !tokenDto.getRefresh_token().isEmpty()) {
-                preferences.put("access_token", tokenDto.getAccess_token());
-                preferences.put("refresh_token", tokenDto.getRefresh_token());
-                hhApiUtils.updateResume(resumeId, tokenDto.getAccess_token());
-            }
+    private void updateTokens(TokenDto tokenDto) {
+        if (tokenDto != null && !tokenDto.getAccess_token().isEmpty() &&
+                !tokenDto.getRefresh_token().isEmpty()) {
+            preferences.put("access_token", tokenDto.getAccess_token());
+            preferences.put("refresh_token", tokenDto.getRefresh_token());
+            hhApiUtils.updateResume(resumeId, tokenDto.getAccess_token());
         }
     }
 
