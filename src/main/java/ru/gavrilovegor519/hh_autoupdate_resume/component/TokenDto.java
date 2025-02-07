@@ -1,4 +1,4 @@
-package ru.gavrilovegor519.hh_autoupdate_resume.dto;
+package ru.gavrilovegor519.hh_autoupdate_resume.component;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

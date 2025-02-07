@@ -1,32 +1,28 @@
-package ru.gavrilovegor519.hh_autoupdate_resume.service.impl;
+package ru.gavrilovegor519.hh_autoupdate_resume.component;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import ru.gavrilovegor519.hh_autoupdate_resume.dto.TokenDto;
-import ru.gavrilovegor519.hh_autoupdate_resume.service.AutoupdateService;
-import ru.gavrilovegor519.hh_autoupdate_resume.utils.HhApiUtils;
+import org.springframework.stereotype.Component;
 
 import java.util.prefs.Preferences;
 
-@Service
+@Component
 @EnableScheduling
 @ConditionalOnProperty(name = "scheduler.enabled", matchIfMissing = true)
-public class AutoupdateServiceImpl implements AutoupdateService {
+public class AutoUpdateResume {
 
     private final HhApiUtils hhApiUtils;
     private final String resumeId;
 
     private final Preferences preferences = Preferences.userRoot().node("hh-autoupdate-resume");
 
-    public AutoupdateServiceImpl(HhApiUtils hhApiUtils, @Value("${ru.gavrilovegor519.hh-autoupdate-resume.resumeId}") String resumeId) {
+    public AutoUpdateResume(HhApiUtils hhApiUtils, @Value("${ru.gavrilovegor519.hh-autoupdate-resume.resumeId}") String resumeId) {
         this.hhApiUtils = hhApiUtils;
         this.resumeId = resumeId;
     }
 
-    @Override
     @Scheduled(fixedRate = 14500)
     public void updateResume() {
         String accessToken = preferences.get("access_token", "");
