@@ -1,10 +1,13 @@
-package ru.gavrilovegor519.hh_autoupdate_resume.component;
+package ru.gavrilovegor519.hh_autoupdate_resume;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import ru.gavrilovegor519.hh_autoupdate_resume.dto.TokenDto;
+import ru.gavrilovegor519.hh_autoupdate_resume.util.HhApiUtils;
+import ru.gavrilovegor519.hh_autoupdate_resume.util.SendTelegramNotification;
 
 import java.util.prefs.Preferences;
 

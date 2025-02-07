@@ -1,4 +1,4 @@
-package ru.gavrilovegor519.hh_autoupdate_resume.component;
+package ru.gavrilovegor519.hh_autoupdate_resume.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

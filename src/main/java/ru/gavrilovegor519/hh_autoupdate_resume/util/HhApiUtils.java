@@ -1,4 +1,4 @@
-package ru.gavrilovegor519.hh_autoupdate_resume.component;
+package ru.gavrilovegor519.hh_autoupdate_resume.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import ru.gavrilovegor519.hh_autoupdate_resume.dto.TokenDto;
 
 @Component
 @Slf4j
