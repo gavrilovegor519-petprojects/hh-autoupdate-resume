@@ -22,6 +22,9 @@ public class AutoUpdateResume {
 
     private final Preferences preferences = Preferences.userRoot().node("hh-autoupdate-resume");
 
+    private String accessToken = preferences.get("access_token", null);
+    private String refreshToken = preferences.get("refresh_token", null);
+
     public AutoUpdateResume(HhApiUtils hhApiUtils, SendTelegramNotification sendTelegramNotification,
                             @Value("${ru.gavrilovegor519.hh-autoupdate-resume.resumeId}") String resumeId) {
         this.hhApiUtils = hhApiUtils;
@@ -29,39 +32,52 @@ public class AutoUpdateResume {
         this.resumeId = resumeId;
     }
 
-    @Scheduled(fixedRate = 14400)
+    @Scheduled(fixedRate = 14400000)
     public void updateResume() {
-        String accessToken = preferences.get("access_token", null);
-        String refreshToken = preferences.get("refresh_token", null);
-
         if (accessToken != null && refreshToken != null) {
             try {
-                hhApiUtils.updateResume(resumeId, accessToken);
+                updateResumeInternal();
             } catch (Exception e) {
-                sendTelegramNotification.send("Ошибка обновления резюме: " + e.getMessage());
-                try {
-                    updateTokens(hhApiUtils.getNewToken(refreshToken));
-                } catch (Exception e1) {
-                    sendTelegramNotification.send("Ошибка обновления токенов: " + e1.getMessage());
-                }
+                updateTokens(false);
+                updateResumeInternal();
             }
         } else {
-            try {
-                updateTokens(hhApiUtils.getInitialToken());
-            } catch (Exception e) {
-                sendTelegramNotification.send("Ошибка первичной авторизации: " + e.getMessage());
-            }
+            updateTokens(true);
+            updateResumeInternal();
         }
-
-        sendTelegramNotification.send("Резюме обновлено");
     }
 
-    private void updateTokens(TokenDto tokenDto) {
+    private void updateResumeInternal() {
+        try {
+            hhApiUtils.updateResume(resumeId, accessToken);
+            sendTelegramNotification.send("Резюме обновлено");
+        } catch (Exception e) {
+            sendTelegramNotification.send("Ошибка обновления резюме: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    private void updateTokens(boolean isInitial) {
+        try {
+            if (isInitial) {
+                updateTokensInPreferences(hhApiUtils.getInitialToken());
+            } else {
+                updateTokensInPreferences(hhApiUtils.getNewToken(refreshToken));
+            }
+            sendTelegramNotification.send("Токены обновлены");
+        } catch (Exception e) {
+            sendTelegramNotification.send("Ошибка обновления токенов: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    private void updateTokensInPreferences(TokenDto tokenDto) {
         if (tokenDto != null && !tokenDto.getAccess_token().isEmpty() &&
                 !tokenDto.getRefresh_token().isEmpty()) {
             preferences.put("access_token", tokenDto.getAccess_token());
             preferences.put("refresh_token", tokenDto.getRefresh_token());
-            hhApiUtils.updateResume(resumeId, tokenDto.getAccess_token());
+            accessToken = preferences.get("access_token", null);
+            refreshToken = preferences.get("refresh_token", null);
         }
     }
 
