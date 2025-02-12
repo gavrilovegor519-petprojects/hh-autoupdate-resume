@@ -2,9 +2,11 @@ package ru.gavrilovegor519.hh_autoupdate_resume;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import ru.gavrilovegor519.hh_autoupdate_resume.dto.TokenDto;
 import ru.gavrilovegor519.hh_autoupdate_resume.util.HhApiUtils;
 import ru.gavrilovegor519.hh_autoupdate_resume.util.SendTelegramNotification;
@@ -37,9 +39,11 @@ public class AutoUpdateResume {
         if (accessToken != null && refreshToken != null) {
             try {
                 updateResumeInternal();
-            } catch (Exception e) {
-                updateTokens(false);
-                updateResumeInternal();
+            } catch (HttpClientErrorException e) {
+                if (e.getStatusCode() == HttpStatusCode.valueOf(403)) {
+                    updateTokens(false);
+                    updateResumeInternal();
+                }
             }
         } else {
             updateTokens(true);

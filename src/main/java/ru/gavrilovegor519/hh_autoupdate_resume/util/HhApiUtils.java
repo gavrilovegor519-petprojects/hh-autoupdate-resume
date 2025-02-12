@@ -61,7 +61,7 @@ public class HhApiUtils {
 
     public void updateResume(String resumeId, String accessToken) {
         restClient.post()
-                .uri("/resume/{resumeId}/publish", resumeId)
+                .uri("/resumes/{resumeId}/publish", resumeId)
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange((request, response) -> {
