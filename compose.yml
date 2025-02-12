@@ -1,8 +1,6 @@
 services:
   app:
     image: 'gavrilovegor519/hh-autoupdate-resume'
-    build:
-      context: .
     environment: # I'm use .env file
       - HH_AUTOUPDATE_RESUME_AUTHTOKEN=${HH_AUTOUPDATE_RESUME_AUTHTOKEN}
       - HH_AUTOUPDATE_RESUME_CLIENT_ID=${HH_AUTOUPDATE_RESUME_CLIENT_ID}
