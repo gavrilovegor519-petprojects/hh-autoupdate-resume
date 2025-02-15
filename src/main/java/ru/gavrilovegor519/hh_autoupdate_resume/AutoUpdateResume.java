@@ -40,7 +40,7 @@ public class AutoUpdateResume {
             try {
                 updateResumeInternal();
             } catch (HttpClientErrorException e) {
-                if (e.getStatusCode() == HttpStatusCode.valueOf(403)) {
+                if (e.getStatusCode().isSameCodeAs(HttpStatusCode.valueOf(403))) {
                     updateTokens(false);
                     updateResumeInternal();
                 }
@@ -55,8 +55,10 @@ public class AutoUpdateResume {
         try {
             hhApiUtils.updateResume(resumeId, accessToken);
             sendTelegramNotification.send("Резюме обновлено");
-        } catch (Exception e) {
-            sendTelegramNotification.send("Ошибка обновления резюме: " + e.getMessage());
+        } catch (HttpClientErrorException e) {
+            if (!e.getStatusCode().isSameCodeAs(HttpStatusCode.valueOf(403))) {
+                sendTelegramNotification.send("Ошибка обновления резюме: " + e.getMessage());
+            }
             throw e;
         }
     }
