@@ -66,8 +66,7 @@ public class HhApiUtils {
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange((request, response) -> {
                     if (response.getStatusCode().isSameCodeAs(HttpStatusCode.valueOf(204))) {
-                        return objectMapper.readValue(response.getBody(), new TypeReference<>() {
-                        });
+                        return "OK";
                     } else {
                         throw new HttpClientErrorException(response.getStatusCode(), new String(response.getBody().readAllBytes()));
                     }
