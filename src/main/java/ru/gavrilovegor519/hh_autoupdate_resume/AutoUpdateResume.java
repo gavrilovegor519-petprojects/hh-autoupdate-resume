@@ -34,7 +34,7 @@ public class AutoUpdateResume {
         this.resumeId = resumeId;
     }
 
-    @Scheduled(fixedRate = 14400000)
+    @Scheduled(fixedRate = 14410000)
     public void updateResume() {
         if (accessToken != null && refreshToken != null) {
             try {
