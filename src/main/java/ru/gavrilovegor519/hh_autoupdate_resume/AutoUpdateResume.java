@@ -60,6 +60,9 @@ public class AutoUpdateResume {
                 sendTelegramNotification.send("Ошибка обновления резюме: " + e.getMessage());
             }
             throw e;
+        } catch (Exception e) {
+            sendTelegramNotification.send("Ошибка обновления резюме: " + e.getMessage());
+            throw e;
         }
     }
 
