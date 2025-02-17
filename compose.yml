@@ -9,9 +9,14 @@ services:
       - HH_AUTOUPDATE_RESUME_TG_BOTTOKEN=${HH_AUTOUPDATE_RESUME_TG_BOTTOKEN}
       - HH_AUTOUPDATE_RESUME_TG_CHATID=${HH_AUTOUPDATE_RESUME_TG_CHATID}
     restart: always
+    volumes:
+      - "/root/.java:app"
     networks:
       - hh-autoupdate-resume
 
 networks:
   hh-autoupdate-resume:
     driver: bridge
+
+volumes:
+  app:
