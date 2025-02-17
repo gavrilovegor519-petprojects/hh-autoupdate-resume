@@ -10,7 +10,7 @@ services:
       - HH_AUTOUPDATE_RESUME_TG_CHATID=${HH_AUTOUPDATE_RESUME_TG_CHATID}
     restart: always
     volumes:
-      - "/root/.java:app"
+      - "app:/root/.java"
     networks:
       - hh-autoupdate-resume
 
