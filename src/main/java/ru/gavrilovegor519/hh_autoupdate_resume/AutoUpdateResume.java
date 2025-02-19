@@ -81,10 +81,10 @@ public class AutoUpdateResume {
     }
 
     private void updateTokensInPreferences(TokenDto tokenDto) {
-        if (tokenDto != null && !tokenDto.getAccess_token().isEmpty() &&
-                !tokenDto.getRefresh_token().isEmpty()) {
-            preferences.put("access_token", tokenDto.getAccess_token());
-            preferences.put("refresh_token", tokenDto.getRefresh_token());
+        if (tokenDto != null && !tokenDto.access_token().isEmpty() &&
+                !tokenDto.refresh_token().isEmpty()) {
+            preferences.put("access_token", tokenDto.access_token());
+            preferences.put("refresh_token", tokenDto.refresh_token());
             accessToken = preferences.get("access_token", null);
             refreshToken = preferences.get("refresh_token", null);
         }
