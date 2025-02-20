@@ -41,4 +41,4 @@ COPY --from=build-image $APP_HOME/build/libs/hh-autoupdate-resume-0.0.1-SNAPSHOT
 #
 # The command to run when the container starts.
 #
-CMD java -jar app.jar
+CMD ["java", "-jar", "app.jar"]
