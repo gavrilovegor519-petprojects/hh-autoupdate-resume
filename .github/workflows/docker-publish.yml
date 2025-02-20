@@ -27,6 +27,9 @@ jobs:
     environment: docker-hub
     permissions:
       contents: read
+    concurrency:
+      group: ${{ github.workflow }}-docker
+      cancel-in-progress: false
 
     steps:
       - name: Checkout repository
